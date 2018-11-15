@@ -4,6 +4,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { AuthService } from './auth.service';
 
+/* ngRx */
+import { Store } from '@ngrx/store';
+
 @Component({
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
@@ -15,11 +18,15 @@ export class LoginComponent implements OnInit {
   maskUserName: boolean;
 
   constructor(private authService: AuthService,
-              private router: Router) {
+              private router: Router, private store: Store<any>) {
   }
 
   ngOnInit(): void {
-
+    this.store.select('user').subscribe(userSlice => {
+      if (userSlice) {
+        this.maskUserName = userSlice.usernameMaskOn;
+      }
+    });
   }
 
   cancel(): void {
@@ -27,7 +34,13 @@ export class LoginComponent implements OnInit {
   }
 
   checkChanged(value: boolean): void {
-    this.maskUserName = value;
+    // this.maskUserName = value;
+
+    let actionType = value ? 'USER_NAME_MASK_ON': 'USER_NAME_MASK_OFF';
+
+    this.store.dispatch({
+      type: actionType
+    });
   }
 
   login(loginForm: NgForm): void {
