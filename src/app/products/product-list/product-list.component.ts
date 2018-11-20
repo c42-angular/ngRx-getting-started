@@ -29,10 +29,6 @@ export class ProductListComponent implements OnInit, OnDestroy {
   constructor(private productService: ProductService, private store: Store<fromProducts.ProductState>) { }
 
   ngOnInit(): void {
-    this.sub = this.productService.selectedProductChanges$.subscribe(
-      selectedProduct => this.selectedProduct = selectedProduct
-    );
-
     this.productService.getProducts().subscribe(
       (products: Product[]) => this.products = products,
       (err: any) => this.errorMessage = err.error
@@ -42,6 +38,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
     // subscribing to any state changes in the 'products' slice
     this.store.pipe(select(fromProducts.getShowProductCode)).subscribe(
       showProductCode => this.displayCode = showProductCode
+    );
+
+    this.store.pipe(select(fromProducts.getCurrentProduct)).subscribe(
+      currentProduct => this.selectedProduct = currentProduct
     );
   }
 
@@ -55,11 +55,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   newProduct(): void {
-    this.productService.changeSelectedProduct(this.productService.newProduct());
+    this.store.dispatch(new productActions.SetCurrentProduct(this.productService.newProduct()));
   }
 
   productSelected(product: Product): void {
-    this.productService.changeSelectedProduct(product);
+    this.store.dispatch(new productActions.SetCurrentProduct(product));
   }
 
 }
