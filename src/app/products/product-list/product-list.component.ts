@@ -1,8 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, Observable } from 'rxjs';
 
 import { Product } from '../product';
-import { ProductService } from '../product.service';
 
 /* ngRx */
 import { Store, select } from '@ngrx/store';
@@ -16,23 +15,28 @@ import * as productActions from '../store/product.actions';
 })
 export class ProductListComponent implements OnInit, OnDestroy {
   pageTitle = 'Products';
-  errorMessage: string;
+  errorMessage$: Observable<string>;
 
   displayCode: boolean;
 
-  products: Product[];
+  products$: Observable<Product[]>;
 
   // Used to highlight the selected product in the list
   selectedProduct: Product | null;
-  sub: Subscription;
+  //sub: Subscription;
 
-  constructor(private productService: ProductService, private store: Store<fromProducts.State>) { }
+  constructor(private store: Store<fromProducts.State>) { }
 
   ngOnInit(): void {
-    this.productService.getProducts().subscribe(
-      (products: Product[]) => this.products = products,
-      (err: any) => this.errorMessage = err.error
-    );
+    // Do NOT subscribe here because it uses an async pipe
+    // This gets the initial values until the load is complete.
+    this.products$ = this.store.pipe(select(fromProducts.getProducts)) as Observable<Product[]>;
+
+    // dispatch action so ngRx effects module loads products, that eventually
+    // makes its way to subscriber above
+    this.store.dispatch(new productActions.Load());
+
+    this.errorMessage$ = this.store.pipe(select(fromProducts.getError));
 
     // TODO: unsubscribe
     // subscribing to any state changes in the 'products' slice
@@ -46,7 +50,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    //this.sub.unsubscribe();
   }
 
   checkChanged(value: boolean): void {
@@ -55,7 +59,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   newProduct(): void {
-    this.store.dispatch(new productActions.SetCurrentProduct(this.productService.newProduct()));
+    this.store.dispatch(new productActions.InitializeCurrentProduct());
   }
 
   productSelected(product: Product): void {

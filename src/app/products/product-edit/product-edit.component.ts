@@ -33,7 +33,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
 
   constructor(private fb: FormBuilder,
               private productService: ProductService,
-              private store: Store<fromProducts.ProductState>) {
+              private store: Store<fromProducts.State>) {
 
     // Defines all of the validation messages for the form.
     // These could instead be retrieved from a file or database.
