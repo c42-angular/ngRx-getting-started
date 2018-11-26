@@ -26,7 +26,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   selectedProduct: Product | null;
   sub: Subscription;
 
-  constructor(private productService: ProductService, private store: Store<fromProducts.ProductState>) { }
+  constructor(private productService: ProductService, private store: Store<fromProducts.State>) { }
 
   ngOnInit(): void {
     this.productService.getProducts().subscribe(
