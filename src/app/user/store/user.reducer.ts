@@ -1,12 +1,29 @@
-export function userReducer(state, action) {
+import { createFeatureSelector, createSelector } from "@ngrx/store";
+import { UserActions, UserActionTypes } from "./user.actions";
+
+export interface UserState {
+    usernameMaskOn: boolean
+}
+
+const initialState: UserState = {
+    usernameMaskOn: false
+};
+
+// Selector functions
+const geUserFeatureState = createFeatureSelector<UserState>('user');
+
+export const getuserNameMaskOn = createSelector(geUserFeatureState, userState => userState.usernameMaskOn);
+
+
+export function userReducer(state = initialState, action: UserActions): UserState {
     switch (action.type) {
-        case 'USER_NAME_MASK_ON':
+        case UserActionTypes.UserNameMaskOn:
             return {
                 ...state,
                 usernameMaskOn: true
             };
 
-        case 'USER_NAME_MASK_OFF':
+        case UserActionTypes.UserNameMaskOff:
             return {
                 ...state,
                 usernameMaskOn: false

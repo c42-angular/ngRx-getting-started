@@ -3,9 +3,12 @@ import { NgForm } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { AuthService } from './auth.service';
+import * as fromRoot from '../app.reducer';
+import * as fromUser from './store/user.reducer';
+import * as userActions from './store/user.actions';
 
 /* ngRx */
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 
 @Component({
   templateUrl: './login.component.html',
@@ -18,15 +21,12 @@ export class LoginComponent implements OnInit {
   maskUserName: boolean;
 
   constructor(private authService: AuthService,
-              private router: Router, private store: Store<any>) {
+    private router: Router, private store: Store<fromRoot.State>) {
   }
 
   ngOnInit(): void {
-    this.store.select('user').subscribe(userSlice => {
-      if (userSlice) {
-        this.maskUserName = userSlice.usernameMaskOn;
-      }
-    });
+    this.store.pipe(select(fromUser.getuserNameMaskOn)).subscribe(isMaskOn =>
+      this.maskUserName = isMaskOn);
   }
 
   cancel(): void {
@@ -36,11 +36,9 @@ export class LoginComponent implements OnInit {
   checkChanged(value: boolean): void {
     // this.maskUserName = value;
 
-    let actionType = value ? 'USER_NAME_MASK_ON': 'USER_NAME_MASK_OFF';
+    let actionType = value ? new userActions.UserNameMaskOnActionOn() : new userActions.UserNameMaskOnActionOff();
 
-    this.store.dispatch({
-      type: actionType
-    });
+    this.store.dispatch(actionType);
   }
 
   login(loginForm: NgForm): void {
