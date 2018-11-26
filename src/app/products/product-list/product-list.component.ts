@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
 
 import { Product } from '../product';
 
@@ -23,8 +24,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   // Used to highlight the selected product in the list
   selectedProduct: Product | null;
-  //sub: Subscription;
 
+  componentActive = true;
   constructor(private store: Store<fromProducts.State>) { }
 
   ngOnInit(): void {
@@ -40,17 +41,23 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     // TODO: unsubscribe
     // subscribing to any state changes in the 'products' slice
-    this.store.pipe(select(fromProducts.getShowProductCode)).subscribe(
+    this.store.pipe(
+      select(fromProducts.getShowProductCode),
+      takeWhile(() => this.componentActive)
+    ).subscribe(
       showProductCode => this.displayCode = showProductCode
     );
 
-    this.store.pipe(select(fromProducts.getCurrentProduct)).subscribe(
+    this.store.pipe(
+      select(fromProducts.getCurrentProduct),
+      takeWhile(() => this.componentActive)
+    ).subscribe(
       currentProduct => this.selectedProduct = currentProduct
     );
   }
 
   ngOnDestroy(): void {
-    //this.sub.unsubscribe();
+    this.componentActive = false;
   }
 
   checkChanged(value: boolean): void {
