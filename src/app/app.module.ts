@@ -19,6 +19,7 @@ import { UserModule } from './user/user.module';
 
 /* ngRx */
 import { StoreModule } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 @NgModule({
   imports: [
@@ -27,7 +28,10 @@ import { StoreModule } from '@ngrx/store';
     HttpClientInMemoryWebApiModule.forRoot(ProductData),
     UserModule,
     AppRoutingModule,
-    StoreModule.forRoot({}) // initialize with an empty store
+    StoreModule.forRoot({}), // initialize with an empty store
+    StoreDevtoolsModule.instrument({
+      maxAge: 10
+    })
   ],
   declarations: [
     AppComponent,
